@@ -263,6 +263,133 @@ def get_stats():
         }
     })
 
+# ══════════════════════════════════════════
+# AUTH — Login & Register
+# ══════════════════════════════════════════
+
+users = [
+    {
+        "id": 1, "name": "Admin Library", "nim": "ADMIN001",
+        "email": "admin@library.ac.id", "password": "admin123",
+        "role": "admin", "prodi": "Admin"
+    },
+    {
+        "id": 2, "name": "Caesar Gian Indrarizky", "nim": "103012300218",
+        "email": "caesar@student.telkomuniversity.ac.id", "password": "password123",
+        "role": "user", "prodi": "S1 Informatika"
+    },
+    {
+        "id": 3, "name": "Tano Hidayat", "nim": "103012300118",
+        "email": "tano@student.telkomuniversity.ac.id", "password": "password123",
+        "role": "user", "prodi": "S1 Informatika"
+    },
+    {
+        "id": 4, "name": "Muhammad Lutfi", "nim": "103012300438",
+        "email": "lutfi@student.telkomuniversity.ac.id", "password": "password123",
+        "role": "user", "prodi": "S1 Informatika"
+    },
+]
+next_ids["user"] = 5
+
+
+@app.route("/api/login", methods=["POST"])
+def login():
+    data       = request.get_json()
+    identifier = data.get("identifier", "").strip()
+    password   = data.get("password", "").strip()
+
+    if not identifier or not password:
+        return jsonify({"status": "error", "message": "Email/NIM dan password wajib diisi"}), 400
+
+    user = next(
+        (u for u in users
+         if (u["email"] == identifier or u["nim"] == identifier)
+         and u["password"] == password),
+        None
+    )
+    if not user:
+        return jsonify({"status": "error", "message": "Email/NIM atau password salah"}), 401
+
+    return jsonify({
+        "status":  "success",
+        "message": f"Selamat datang, {user['name']}!",
+        "data": {
+            "id":   user["id"],
+            "name": user["name"],
+            "nim":  user["nim"],
+            "role": user["role"],
+            "email": user["email"]
+        }
+    })
+
+
+@app.route("/api/register", methods=["POST"])
+def register():
+    data     = request.get_json()
+    required = ["name", "nim", "email", "prodi", "password"]
+    if not all(k in data and data[k].strip() for k in required):
+        return jsonify({"status": "error", "message": "Semua field wajib diisi"}), 400
+
+    # Cek duplikasi
+    if any(u["email"] == data["email"] or u["nim"] == data["nim"] for u in users):
+        return jsonify({"status": "error", "message": "Email atau NIM sudah terdaftar"}), 409
+
+    # Tambah ke users
+    new_user = {
+        "id":       next_ids["user"],
+        "name":     data["name"],
+        "nim":      data["nim"],
+        "email":    data["email"],
+        "password": data["password"],
+        "role":     "user",
+        "prodi":    data["prodi"]
+    }
+    users.append(new_user)
+    next_ids["user"] += 1
+
+    # Otomatis daftarkan sebagai member perpustakaan
+    new_member = {
+        "id":    next_ids["member"],
+        "name":  data["name"],
+        "nim":   data["nim"],
+        "prodi": data["prodi"],
+        "email": data["email"],
+        "active": True
+    }
+    members.append(new_member)
+    next_ids["member"] += 1
+
+    return jsonify({
+        "status":  "success",
+        "message": "Akun berhasil dibuat! Silakan login.",
+        "data":    {"name": new_user["name"], "role": "user"}
+    }), 201
+
+
+@app.route("/api/borrowings/monthly", methods=["GET"])
+def get_monthly_stats():
+    return jsonify({
+        "status": "success",
+        "data": {
+            "labels":   ["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Ags","Sep","Okt","Nov","Des"],
+            "borrowed": [8,12,7,15,10,18,0,0,0,0,0,0],
+            "returned": [6,10,7,12,9,14,0,0,0,0,0,0]
+        }
+    })
+
+
+# Endpoint: ambil pinjaman berdasarkan member (untuk user view)
+@app.route("/api/borrowings/member/<int:member_id>", methods=["GET"])
+def get_my_borrowings(member_id):
+    my_borrows = [b for b in borrowings if b["member_id"] == member_id]
+    enriched = []
+    for b in my_borrows:
+        book = find_by_id(books, b["book_id"])
+        enriched.append({
+            **b,
+            "book_title": book["title"] if book else "Unknown"
+        })
+    return jsonify({"status": "success", "data": enriched})
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
