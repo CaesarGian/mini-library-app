@@ -126,21 +126,30 @@ const pageTitles = {
   books: 'Katalog Buku',
   members: 'Anggota',
   borrowings: 'Peminjaman',
-  borrow: 'Smart Borrowing'
+  borrow: 'Smart Borrowing',
+  profile: 'Profil Saya'
 };
 
 function navigate(page, el){
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  // Hapus active dari user-chip jika bukan halaman profil
+  const chip = $('user-chip-btn');
+  chip.classList.remove('active-chip');
+  if(page === 'profile'){
+    chip.classList.add('active-chip');
+  } else if(el) {
+    el.classList.add('active');
+  }
   $('page-'+page).classList.add('active');
-  el.classList.add('active');
   $('page-title').textContent = pageTitles[page];
   ({
     dashboard: loadDashboard,
     books: () => loadBooks(),
     members: loadMembers,
     borrowings: loadBorrowings,
-    borrow: loadBorrow
+    borrow: loadBorrow,
+    profile: loadProfile
   })[page]?.();
 }
 
@@ -407,6 +416,58 @@ async function deleteBorrowing(id){
   const res = await del('/borrowings/'+id);
   toast(res.message, 'success');
   loadBorrowings();
+}
+
+/* ── PROFILE ── */
+async function loadProfile(){
+  const u = currentUser;
+  if(!u) return;
+
+  // Avatar & nama besar
+  $('profile-avatar-big').textContent = initials(u.name);
+  $('profile-fullname').textContent   = u.name;
+  $('profile-role-badge').textContent = u.role;
+  $('profile-nim').textContent        = u.nim  || '—';
+  $('profile-prodi').textContent      = u.prodi || '—';
+
+  // Grid info
+  $('p-name').textContent  = u.name  || '—';
+  $('p-nim').textContent   = u.nim   || '—';
+  $('p-email').textContent = u.email || '—';
+  $('p-prodi').textContent = u.prodi || '—';
+  $('p-role').textContent  = u.role  || '—';
+  $('p-status').innerHTML  = u.active !== false
+    ? '<span class="badge badge-green">Aktif</span>'
+    : '<span class="badge badge-red">Nonaktif</span>';
+
+  // Riwayat peminjaman milik user ini (filter by nim atau id)
+  const t = $('profile-borrow-table');
+  t.innerHTML = '<tr><th>Buku</th><th>Tgl Pinjam</th><th>Tgl Kembali</th><th>Status</th></tr>';
+  try {
+    const res = await get('/borrowings');
+    const myBorrows = res.data.filter(b =>
+      b.member_nim === u.nim || b.member_id === u.id || b.member_name === u.name
+    );
+    if(myBorrows.length === 0){
+      t.innerHTML += `<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:20px;">
+        Belum ada riwayat peminjaman.</td></tr>`;
+    } else {
+      myBorrows.reverse().forEach(b => {
+        const badge = b.status === 'borrowed'
+          ? '<span class="badge badge-amber">Dipinjam</span>'
+          : '<span class="badge badge-green">Dikembalikan</span>';
+        t.innerHTML += `<tr>
+          <td><strong>${b.book_title}</strong></td>
+          <td>${b.borrow_date}</td>
+          <td>${b.return_date || '—'}</td>
+          <td>${badge}</td>
+        </tr>`;
+      });
+    }
+  } catch(e){
+    t.innerHTML += `<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:16px;">
+      Gagal memuat riwayat.</td></tr>`;
+  }
 }
 
 /* ── SMART BORROWING ── */

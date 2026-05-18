@@ -122,7 +122,7 @@
     </div>
 
     <div class="sidebar-bottom">
-      <div class="user-chip" onclick="doLogout()">
+      <div class="user-chip" onclick="navigate('profile', this)" id="user-chip-btn">
         <div class="avatar" id="side-avatar">??</div>
         <div class="user-info">
           <div class="u-name" id="side-name">Loading...</div>
@@ -254,6 +254,80 @@
           </div>
           <button class="btn btn-primary" style="width:100%;" onclick="submitBorrow()">Pinjam Sekarang</button>
           <div class="borrow-result" id="borrow-result"></div>
+        </div>
+      </div>
+
+      <!-- PROFILE PAGE -->
+      <div id="page-profile" class="page">
+        <div class="profile-layout">
+
+          <!-- Kartu Avatar -->
+          <div class="card profile-avatar-card">
+            <div class="profile-avatar-big" id="profile-avatar-big">??</div>
+            <div class="profile-fullname" id="profile-fullname">—</div>
+            <div class="profile-role-badge" id="profile-role-badge">member</div>
+            <div class="profile-meta">
+              <div class="profile-meta-item">
+                <span class="profile-meta-label">NIM</span>
+                <span class="profile-meta-val" id="profile-nim">—</span>
+              </div>
+              <div class="profile-meta-item">
+                <span class="profile-meta-label">Program Studi</span>
+                <span class="profile-meta-val" id="profile-prodi">—</span>
+              </div>
+            </div>
+            <button class="btn btn-danger" style="width:100%;margin-top:18px;" onclick="doLogout()">
+              Keluar dari Akun
+            </button>
+          </div>
+
+          <!-- Detail Biodata -->
+          <div class="profile-detail-col">
+            <div class="card" style="margin-bottom:14px;">
+              <div class="card-header">
+                <h2>Informasi Akun</h2>
+              </div>
+              <div class="profile-info-grid">
+                <div class="profile-info-item">
+                  <div class="profile-info-label">Nama Lengkap</div>
+                  <div class="profile-info-val" id="p-name">—</div>
+                </div>
+                <div class="profile-info-item">
+                  <div class="profile-info-label">NIM</div>
+                  <div class="profile-info-val" id="p-nim">—</div>
+                </div>
+                <div class="profile-info-item">
+                  <div class="profile-info-label">Email</div>
+                  <div class="profile-info-val" id="p-email">—</div>
+                </div>
+                <div class="profile-info-item">
+                  <div class="profile-info-label">Program Studi</div>
+                  <div class="profile-info-val" id="p-prodi">—</div>
+                </div>
+                <div class="profile-info-item">
+                  <div class="profile-info-label">Role</div>
+                  <div class="profile-info-val" id="p-role">—</div>
+                </div>
+                <div class="profile-info-item">
+                  <div class="profile-info-label">Status Keanggotaan</div>
+                  <div class="profile-info-val" id="p-status">—</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Riwayat peminjaman user -->
+            <div class="card">
+              <div class="card-header">
+                <h2>Riwayat Peminjaman Saya</h2>
+              </div>
+              <div class="tbl-wrap">
+                <table id="profile-borrow-table">
+                  <tr><th>Buku</th><th>Tgl Pinjam</th><th>Tgl Kembali</th><th>Status</th></tr>
+                </table>
+              </div>
+            </div>
+          </div>
+
         </div>
       </div>
 
