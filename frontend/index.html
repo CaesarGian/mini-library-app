@@ -3,401 +3,243 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Mini Digital Library</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
-  <link rel="stylesheet" href="style.css"/>
+  <title>Mini Digital Library — Tim Pengembang</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;}
+    :root{
+      --green:#1D9E75;--green-dark:#0F6E56;--green-light:#E1F5EE;
+      --amber:#EF9F27;--red:#E05252;
+      --bg:#F5F7F4;--card:#FFFFFF;--text:#2C2C2A;--muted:#888780;
+      --border:#D3D1C7;
+    }
+    body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+
+    /* ── TOPBAR ── */
+    .topbar{background:var(--card);border-bottom:0.5px solid var(--border);
+      padding:14px 32px;display:flex;align-items:center;justify-content:space-between;
+      position:sticky;top:0;z-index:100;}
+    .top-logo{display:flex;align-items:center;gap:10px;}
+    .logo-box{width:36px;height:36px;background:var(--green-light);border-radius:9px;
+      display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+    .logo-name{font-size:16px;font-weight:600;color:var(--text);}
+    .logo-sub{font-size:10px;color:var(--muted);}
+    .btn-app{padding:8px 18px;background:var(--green);color:#fff;border:none;
+      border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;
+      text-decoration:none;transition:background .15s;display:inline-flex;align-items:center;gap:6px;}
+    .btn-app:hover{background:var(--green-dark);}
+
+    /* ── HERO ── */
+    .hero{text-align:center;padding:64px 24px 48px;}
+    .hero-tag{display:inline-block;background:var(--green-light);color:var(--green-dark);
+      font-size:12px;font-weight:500;padding:4px 12px;border-radius:20px;margin-bottom:18px;}
+    .hero h1{font-size:34px;font-weight:700;color:var(--text);margin-bottom:10px;line-height:1.25;}
+    .hero p{font-size:15px;color:var(--muted);max-width:520px;margin:0 auto;}
+
+    /* ── STATS BAR ── */
+    .stats-wrap{max-width:720px;margin:0 auto 56px;padding:0 24px;}
+    .stats-bar{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+    .stat-item{background:var(--card);border:0.5px solid var(--border);border-radius:12px;
+      padding:18px 20px;text-align:center;}
+    .stat-num{font-size:28px;font-weight:700;color:var(--green);margin-bottom:4px;}
+    .stat-num.amber{color:var(--amber);}
+    .stat-label{font-size:11px;color:var(--muted);font-weight:500;}
+
+    /* ── MEMBER GRID ── */
+    .section{max-width:960px;margin:0 auto;padding:0 24px 80px;}
+    .section-title{font-size:13px;font-weight:600;color:var(--muted);text-transform:uppercase;
+      letter-spacing:.6px;margin-bottom:20px;}
+    .members-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;}
+
+    /* ── MEMBER CARD ── */
+    .member-card{background:var(--card);border:0.5px solid var(--border);border-radius:14px;
+      padding:24px 20px;display:flex;flex-direction:column;align-items:center;text-align:center;
+      transition:box-shadow .2s,transform .2s;}
+    .member-card:hover{box-shadow:0 6px 24px rgba(0,0,0,.07);transform:translateY(-2px);}
+    .m-avatar{width:64px;height:64px;border-radius:50%;background:var(--green-light);
+      display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;
+      color:var(--green-dark);margin-bottom:14px;flex-shrink:0;}
+    .m-name{font-size:14px;font-weight:600;color:var(--text);margin-bottom:4px;line-height:1.35;}
+    .m-prodi{font-size:11px;color:var(--muted);margin-bottom:14px;}
+    .m-divider{width:100%;height:0.5px;background:var(--border);margin-bottom:14px;}
+    .m-info{width:100%;display:flex;flex-direction:column;gap:8px;}
+    .m-row{display:flex;justify-content:space-between;align-items:flex-start;font-size:12px;}
+    .m-key{color:var(--muted);font-weight:500;flex-shrink:0;}
+    .m-val{color:var(--text);font-weight:500;text-align:right;max-width:160px;
+      word-break:break-all;line-height:1.3;}
+    .m-badge{display:inline-block;padding:2px 9px;border-radius:10px;font-size:10px;font-weight:500;
+      background:var(--green-light);color:var(--green-dark);}
+
+    /* ── FOOTER ── */
+    .footer{border-top:0.5px solid var(--border);padding:20px 32px;
+      display:flex;justify-content:space-between;align-items:center;
+      background:var(--card);font-size:12px;color:var(--muted);}
+
+    @media(max-width:600px){
+      .hero h1{font-size:24px;}
+      .stats-bar{grid-template-columns:1fr;}
+      .topbar{padding:12px 16px;}
+      .section{padding:0 16px 60px;}
+      .footer{flex-direction:column;gap:6px;text-align:center;}
+    }
+  </style>
 </head>
 <body>
 
-<!-- ══════════════════════════════════════
-     AUTH SCREEN
-══════════════════════════════════════ -->
-<div id="auth-screen">
-  <div class="auth-side">
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="top-logo">
+    <div class="logo-box">📚</div>
+    <div>
+      <div class="logo-name">LibraryApp</div>
+      <div class="logo-sub">Mini Digital Library</div>
+    </div>
+  </div>
+  <a href="app.html" class="btn-app">Buka Aplikasi →</a>
+</div>
 
-    <!-- LOGIN FORM -->
-    <div class="auth-card" id="form-login">
-      <div class="auth-logo">
-        <div class="logo-box">📚</div>
-        <div class="logo-info">
-          <div class="logo-name">LibraryApp</div>
-          <div class="logo-sub">Mini Digital Library</div>
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-tag">S1 Informatika · Telkom University</div>
+  <h1>Tim Pengembang<br>Mini Digital Library</h1>
+  <p>Proyek perpustakaan digital berbasis REST API — dikembangkan bersama oleh kelompok berikut.</p>
+</div>
+
+<!-- STATS -->
+<div class="stats-wrap">
+  <div class="stats-bar">
+    <div class="stat-item">
+      <div class="stat-num">5</div>
+      <div class="stat-label">Koleksi Buku</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">5</div>
+      <div class="stat-label">Anggota Terdaftar</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num amber">5</div>
+      <div class="stat-label">Anggota Tim</div>
+    </div>
+  </div>
+</div>
+
+<!-- MEMBER SECTION -->
+<div class="section">
+  <div class="section-title">Anggota Tim</div>
+  <div class="members-grid">
+
+    <div class="member-card">
+      <div class="m-avatar">CG</div>
+      <div class="m-name">Caesar Gian Indrarizky</div>
+      <div class="m-prodi">S1 Informatika</div>
+      <div class="m-divider"></div>
+      <div class="m-info">
+        <div class="m-row">
+          <span class="m-key">NIM</span>
+          <span class="m-val">103012300218</span>
+        </div>
+        <div class="m-row">
+          <span class="m-key">Email</span>
+          <span class="m-val">caesar@student.telkomuniversity.ac.id</span>
+        </div>
+        <div class="m-row">
+          <span class="m-key">Status</span>
+          <span class="m-val"><span class="m-badge">Aktif</span></span>
         </div>
       </div>
-      <div class="auth-title">Selamat datang kembali</div>
-      <div class="auth-sub">Masuk ke akun perpustakaan digital kamu</div>
-      <div class="auth-error" id="login-err"></div>
-      <div class="field">
-        <label>Email / NIM</label>
-        <input type="text" id="login-id" placeholder="email@student.telkomuniversity.ac.id" />
-      </div>
-      <div class="field">
-        <label>Password</label>
-        <div class="pw-wrap">
-          <input type="password" id="login-pw" placeholder="Masukkan password" />
-          <button class="pw-toggle" onclick="togglePw('login-pw',this)" type="button">👁</button>
-        </div>
-      </div>
-      <a class="forgot-link">Lupa password?</a>
-      <button class="btn-auth" id="btn-login" onclick="doLogin()">Masuk</button>
-      <hr class="auth-divider"/>
-      <div class="auth-footer">Belum punya akun? <a onclick="switchAuth('register')">Daftar di sini</a></div>
     </div>
 
-    <!-- REGISTER FORM -->
-    <div class="auth-card" id="form-register" style="display:none;">
-      <div class="auth-logo">
-        <div class="logo-box">📚</div>
-        <div class="logo-info">
-          <div class="logo-name">LibraryApp</div>
-          <div class="logo-sub">Mini Digital Library</div>
+    <div class="member-card">
+      <div class="m-avatar">TH</div>
+      <div class="m-name">Tano Hidayat</div>
+      <div class="m-prodi">S1 Informatika</div>
+      <div class="m-divider"></div>
+      <div class="m-info">
+        <div class="m-row">
+          <span class="m-key">NIM</span>
+          <span class="m-val">103012300118</span>
+        </div>
+        <div class="m-row">
+          <span class="m-key">Email</span>
+          <span class="m-val">tano@student.telkomuniversity.ac.id</span>
+        </div>
+        <div class="m-row">
+          <span class="m-key">Status</span>
+          <span class="m-val"><span class="m-badge">Aktif</span></span>
         </div>
       </div>
-      <div class="auth-title">Daftar sebagai anggota</div>
-      <div class="auth-sub">Lengkapi data diri untuk akses perpustakaan digital</div>
-      <div class="auth-error" id="reg-err"></div>
-      <div class="field">
-        <label>Nama Lengkap</label>
-        <input type="text" id="reg-name" placeholder="Nama lengkap mahasiswa"/>
-      </div>
-      <div class="field">
-        <label>NIM</label>
-        <input type="text" id="reg-nim" placeholder="103012300000"/>
-      </div>
-      <div class="field">
-        <label>Email Kampus</label>
-        <input type="email" id="reg-email" placeholder="email@student.telkomuniversity.ac.id"/>
-      </div>
-      <div class="field">
-        <label>Program Studi</label>
-        <input type="text" id="reg-prodi" placeholder="S1 Informatika"/>
-      </div>
-      <div class="field">
-        <label>Password</label>
-        <div class="pw-wrap">
-          <input type="password" id="reg-pw" placeholder="Buat password"/>
-          <button class="pw-toggle" onclick="togglePw('reg-pw',this)" type="button">👁</button>
+    </div>
+
+    <div class="member-card">
+      <div class="m-avatar">ML</div>
+      <div class="m-name">Muhammad Lutfi</div>
+      <div class="m-prodi">S1 Informatika</div>
+      <div class="m-divider"></div>
+      <div class="m-info">
+        <div class="m-row">
+          <span class="m-key">NIM</span>
+          <span class="m-val">103012300438</span>
+        </div>
+        <div class="m-row">
+          <span class="m-key">Email</span>
+          <span class="m-val">lutfi@student.telkomuniversity.ac.id</span>
+        </div>
+        <div class="m-row">
+          <span class="m-key">Status</span>
+          <span class="m-val"><span class="m-badge">Aktif</span></span>
         </div>
       </div>
-      <button class="btn-auth" id="btn-reg" onclick="doRegister()">Daftar Sekarang</button>
-      <hr class="auth-divider"/>
-      <div class="auth-footer">Sudah punya akun? <a onclick="switchAuth('login')">Login di sini</a></div>
+    </div>
+
+    <div class="member-card">
+      <div class="m-avatar">MI</div>
+      <div class="m-name">Muammar Irza Choirruzzat</div>
+      <div class="m-prodi">S1 Informatika</div>
+      <div class="m-divider"></div>
+      <div class="m-info">
+        <div class="m-row">
+          <span class="m-key">NIM</span>
+          <span class="m-val">103012330314</span>
+        </div>
+        <div class="m-row">
+          <span class="m-key">Email</span>
+          <span class="m-val">irza@student.telkomuniversity.ac.id</span>
+        </div>
+        <div class="m-row">
+          <span class="m-key">Status</span>
+          <span class="m-val"><span class="m-badge">Aktif</span></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="member-card">
+      <div class="m-avatar">FA</div>
+      <div class="m-name">Faiz Arrafi</div>
+      <div class="m-prodi">S1 Informatika</div>
+      <div class="m-divider"></div>
+      <div class="m-info">
+        <div class="m-row">
+          <span class="m-key">NIM</span>
+          <span class="m-val">103012300304</span>
+        </div>
+        <div class="m-row">
+          <span class="m-key">Email</span>
+          <span class="m-val">faiz@student.telkomuniversity.ac.id</span>
+        </div>
+        <div class="m-row">
+          <span class="m-key">Status</span>
+          <span class="m-val"><span class="m-badge">Aktif</span></span>
+        </div>
+      </div>
     </div>
 
   </div>
 </div>
 
-<!-- ══════════════════════════════════════
-     APP SCREEN
-══════════════════════════════════════ -->
-<div id="app-screen" class="hidden">
-
-  <!-- Sidebar -->
-  <div class="sidebar">
-    <div class="s-logo">
-      <div class="lb">📚</div>
-      <div>
-        <div class="ln">LibraryApp</div>
-        <div class="ls">Mini Digital Library</div>
-      </div>
-    </div>
-
-    <div class="nav-section">
-      <div class="nav-label">MENU</div>
-      <div class="nav-item active" onclick="navigate('dashboard',this)">
-        <span class="ni">📊</span> Dashboard
-      </div>
-      <div class="nav-item" onclick="navigate('books',this)">
-        <span class="ni">📖</span> Katalog Buku
-      </div>
-      <div class="nav-item" onclick="navigate('members',this)">
-        <span class="ni">👥</span> Anggota
-      </div>
-      <div class="nav-item" onclick="navigate('borrowings',this)">
-        <span class="ni">🔄</span> Peminjaman
-      </div>
-      <div class="nav-item" onclick="navigate('borrow',this)">
-        <span class="ni">✨</span> Smart Borrowing
-      </div>
-    </div>
-
-    <div class="sidebar-bottom">
-      <div class="user-chip" onclick="navigate('profile', this)" id="user-chip-btn">
-        <div class="avatar" id="side-avatar">??</div>
-        <div class="user-info">
-          <div class="u-name" id="side-name">Loading...</div>
-          <div class="u-role" id="side-role">member</div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Main -->
-  <div class="main">
-    <div class="topbar">
-      <h1 id="page-title">Dashboard</h1>
-      <div class="tb-right">
-        <span id="top-user"></span>
-        <button class="btn btn-sm" style="color:var(--red);" onclick="doLogout()">Keluar</button>
-      </div>
-    </div>
-
-    <div class="content">
-
-      <!-- DASHBOARD PAGE -->
-      <div id="page-dashboard" class="page active">
-        <div class="stats-grid">
-          <div class="stat-card">
-            <div class="s-label">Total Buku</div>
-            <div class="s-value" id="s-books">—</div>
-          </div>
-          <div class="stat-card">
-            <div class="s-label">Total Anggota</div>
-            <div class="s-value" id="s-members">—</div>
-          </div>
-          <div class="stat-card">
-            <div class="s-label">Sedang Dipinjam</div>
-            <div class="s-value warn" id="s-active">—</div>
-          </div>
-          <div class="stat-card">
-            <div class="s-label">Dikembalikan</div>
-            <div class="s-value" id="s-returned">—</div>
-          </div>
-        </div>
-
-        <div class="chart-row">
-          <!-- BAR CHART -->
-          <div class="card">
-            <div class="card-header">
-              <h2>Statistik Peminjaman Bulanan (2026)</h2>
-              <div class="legend">
-                <div class="leg-item">
-                  <div class="leg-dot" style="background:#1D9E75;"></div> Dipinjam
-                </div>
-                <div class="leg-item">
-                  <div class="leg-dot" style="background:#EF9F27;"></div> Dikembalikan
-                </div>
-              </div>
-            </div>
-            <canvas id="mainChart" height="180"></canvas>
-          </div>
-
-          <!-- RECENT TABLE -->
-          <div class="card">
-            <div class="card-header"><h2>Peminjaman Terbaru</h2></div>
-            <table id="dash-recent">
-              <tr><th>Anggota</th><th>Status</th></tr>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      <!-- BOOKS PAGE -->
-      <div id="page-books" class="page">
-        <div class="card">
-          <div class="card-header">
-            <h2>Manajemen Katalog Buku</h2>
-            <button class="btn btn-primary" onclick="openModal('book')">+ Tambah Buku</button>
-          </div>
-          <div class="search-bar">
-            <input type="text" placeholder="Cari judul atau pengarang..." oninput="searchBooks(this.value)"/>
-          </div>
-          <div class="tbl-wrap">
-            <table id="books-table">
-              <tr><th>Judul</th><th>Pengarang</th><th>Tahun</th><th>Kategori</th><th>Stok</th><th>Aksi</th></tr>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      <!-- MEMBERS PAGE -->
-      <div id="page-members" class="page">
-        <div class="card">
-          <div class="card-header">
-            <h2>Manajemen Anggota</h2>
-            <button class="btn btn-primary" onclick="openModal('member')">+ Tambah Anggota</button>
-          </div>
-          <div class="tbl-wrap">
-            <table id="members-table">
-              <tr><th>Nama</th><th>NIM</th><th>Program Studi</th><th>Email</th><th>Status</th><th>Aksi</th></tr>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      <!-- BORROWINGS PAGE -->
-      <div id="page-borrowings" class="page">
-        <div class="card">
-          <div class="card-header"><h2>Riwayat Peminjaman</h2></div>
-          <div class="tbl-wrap">
-            <table id="borrowings-table">
-              <tr><th>Anggota</th><th>Buku</th><th>Tgl Pinjam</th><th>Tgl Kembali</th><th>Status</th><th>Aksi</th></tr>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      <!-- SMART BORROWING PAGE -->
-      <div id="page-borrow" class="page">
-        <div class="card borrow-card">
-          <div class="card-header"><h2>✨ Smart Borrowing</h2></div>
-          <p style="font-size:13px;color:var(--muted);margin-bottom:18px;">
-            Sistem otomatis cek ketersediaan buku dan status anggota sebelum buat tiket peminjaman baru.
-          </p>
-          <div class="form-group">
-            <label>Pilih Anggota</label>
-            <select id="borrow-member"></select>
-          </div>
-          <div class="form-group">
-            <label>Pilih Buku</label>
-            <select id="borrow-book"></select>
-          </div>
-          <button class="btn btn-primary" style="width:100%;" onclick="submitBorrow()">Pinjam Sekarang</button>
-          <div class="borrow-result" id="borrow-result"></div>
-        </div>
-      </div>
-
-      <!-- PROFILE PAGE -->
-      <div id="page-profile" class="page">
-        <div class="profile-layout">
-
-          <!-- Kartu Avatar -->
-          <div class="card profile-avatar-card">
-            <div class="profile-avatar-big" id="profile-avatar-big">??</div>
-            <div class="profile-fullname" id="profile-fullname">—</div>
-            <div class="profile-role-badge" id="profile-role-badge">member</div>
-            <div class="profile-meta">
-              <div class="profile-meta-item">
-                <span class="profile-meta-label">NIM</span>
-                <span class="profile-meta-val" id="profile-nim">—</span>
-              </div>
-              <div class="profile-meta-item">
-                <span class="profile-meta-label">Program Studi</span>
-                <span class="profile-meta-val" id="profile-prodi">—</span>
-              </div>
-            </div>
-            <button class="btn btn-danger" style="width:100%;margin-top:18px;" onclick="doLogout()">
-              Keluar dari Akun
-            </button>
-          </div>
-
-          <!-- Detail Biodata -->
-          <div class="profile-detail-col">
-            <div class="card" style="margin-bottom:14px;">
-              <div class="card-header">
-                <h2>Informasi Akun</h2>
-              </div>
-              <div class="profile-info-grid">
-                <div class="profile-info-item">
-                  <div class="profile-info-label">Nama Lengkap</div>
-                  <div class="profile-info-val" id="p-name">—</div>
-                </div>
-                <div class="profile-info-item">
-                  <div class="profile-info-label">NIM</div>
-                  <div class="profile-info-val" id="p-nim">—</div>
-                </div>
-                <div class="profile-info-item">
-                  <div class="profile-info-label">Email</div>
-                  <div class="profile-info-val" id="p-email">—</div>
-                </div>
-                <div class="profile-info-item">
-                  <div class="profile-info-label">Program Studi</div>
-                  <div class="profile-info-val" id="p-prodi">—</div>
-                </div>
-                <div class="profile-info-item">
-                  <div class="profile-info-label">Role</div>
-                  <div class="profile-info-val" id="p-role">—</div>
-                </div>
-                <div class="profile-info-item">
-                  <div class="profile-info-label">Status Keanggotaan</div>
-                  <div class="profile-info-val" id="p-status">—</div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Riwayat peminjaman user -->
-            <div class="card">
-              <div class="card-header">
-                <h2>Riwayat Peminjaman Saya</h2>
-              </div>
-              <div class="tbl-wrap">
-                <table id="profile-borrow-table">
-                  <tr><th>Buku</th><th>Tgl Pinjam</th><th>Tgl Kembali</th><th>Status</th></tr>
-                </table>
-              </div>
-            </div>
-          </div>
-
-        </div>
-      </div>
-
-    </div>
-  </div>
+<!-- FOOTER -->
+<div class="footer">
+  <span>Mini Digital Library · Tugas Kelompok</span>
+  <span>S1 Informatika · Telkom University · 2026</span>
 </div>
 
-<!-- MODAL BOOK -->
-<div class="modal-bg" id="modal-book">
-  <div class="modal">
-    <h3 id="modal-book-title">Tambah Buku</h3>
-    <input type="hidden" id="book-edit-id"/>
-    <div class="form-group">
-      <label>Judul Buku</label>
-      <input type="text" id="book-title" placeholder="Masukkan judul buku"/>
-    </div>
-    <div class="form-group">
-      <label>Pengarang</label>
-      <input type="text" id="book-author" placeholder="Nama pengarang"/>
-    </div>
-    <div class="form-group">
-      <label>Tahun Terbit</label>
-      <input type="number" id="book-year" placeholder="2024"/>
-    </div>
-    <div class="form-group">
-      <label>Kategori</label>
-      <input type="text" id="book-category" placeholder="Programming, Networking, dsb."/>
-    </div>
-    <div class="form-group">
-      <label>Stok</label>
-      <input type="number" id="book-stock" placeholder="1" min="0"/>
-    </div>
-    <div class="modal-footer">
-      <button class="btn" onclick="closeModal('book')">Batal</button>
-      <button class="btn btn-primary" onclick="saveBook()">Simpan</button>
-    </div>
-  </div>
-</div>
-
-<!-- MODAL MEMBER -->
-<div class="modal-bg" id="modal-member">
-  <div class="modal">
-    <h3 id="modal-member-title">Tambah Anggota</h3>
-    <input type="hidden" id="member-edit-id"/>
-    <div class="form-group">
-      <label>Nama Lengkap</label>
-      <input type="text" id="member-name" placeholder="Nama lengkap mahasiswa"/>
-    </div>
-    <div class="form-group">
-      <label>NIM</label>
-      <input type="text" id="member-nim" placeholder="103012300000"/>
-    </div>
-    <div class="form-group">
-      <label>Program Studi</label>
-      <input type="text" id="member-prodi" placeholder="S1 Informatika"/>
-    </div>
-    <div class="form-group">
-      <label>Email Kampus</label>
-      <input type="email" id="member-email" placeholder="email@student.telkomuniversity.ac.id"/>
-    </div>
-    <div class="modal-footer">
-      <button class="btn" onclick="closeModal('member')">Batal</button>
-      <button class="btn btn-primary" onclick="saveMember()">Simpan</button>
-    </div>
-  </div>
-</div>
-
-<!-- Toast -->
-<div class="toast" id="toast"></div>
-
-<script src="app.js"></script>
 </body>
 </html>
